@@ -2,25 +2,13 @@ import streamlit as st
 from transformers import pipeline
 import random  # For random message selection
 
-# Load lighter 3-class sentiment model (~500MB, low RAM)
+# Load lighter 3-class sentiment model (~440MB, optimized for neutral factuals)
 @st.cache_resource  # Caches to load once per session
 def load_model():
     return pipeline(
         "sentiment-analysis", 
-        model="cardiffnlp/twitter-roberta-base-sentiment",
-        tokenizer="cardiffnlp/twitter-roberta-base-sentiment"
+        model="finiteautomata/bertweet-base-sentiment-analysis"
     )
-
-# Map raw model labels to clean ones
-def map_label(raw_label):
-    if raw_label == 'LABEL_2':
-        return 'positive'
-    elif raw_label == 'LABEL_1':
-        return 'neutral'
-    elif raw_label == 'LABEL_0':
-        return 'negative'
-    else:
-        return 'unknown'  # Fallback
 
 # Random messages for variety
 positive_messages = [
@@ -51,29 +39,34 @@ user_input = st.text_area("Enter text:", height=150, placeholder="E.g., 'This we
 if st.button("Analyze Sentiment") and user_input:
     model = load_model()
     result = model(user_input)[0]  # Get the top prediction
-    sentiment_lower = map_label(result['label'])  # Map raw to clean lowercase
+    sentiment = result['label']  # Clean: 'POS', 'NEU', or 'NEG'
 
-    # Capitalize for display
-    sentiment_display = sentiment_lower.capitalize()
+    # Map to display-friendly
+    if sentiment == 'POS':
+        sentiment_display = 'Positive'
+    elif sentiment == 'NEU':
+        sentiment_display = 'Neutral'
+    else:  # 'NEG'
+        sentiment_display = 'Negative'
 
     # Display results
     st.subheader("Results:")
     st.write(f"**Sentiment:** {sentiment_display}")
     
     # Pick & display random message with color-code
-    if sentiment_lower == 'positive':
+    if sentiment == 'POS':
         msg = random.choice(positive_messages)
         st.success(msg)
-    elif sentiment_lower == 'neutral':
+    elif sentiment == 'NEU':
         msg = random.choice(neutral_messages)
         st.warning(msg)
-    else:  # 'negative' or 'unknown'
+    else:  # 'NEG'
         msg = random.choice(negative_messages)
         st.error(msg)
 
 # Sidebar for info
 with st.sidebar:
     st.header("About")
-    st.write("**What it does:** Analyzes short text (like reviews or tweets) and classifies it as Positive, Neutral, or Negative sentiment. Tuned for low-resource deploys!")
-    st.write("**Tech:** Built with Streamlit for the UI and Hugging Face's RoBERTa-base model (trained on 124M+ tweets).")
+    st.write("**What it does:** Analyzes short text (like reviews or tweets) and classifies it as Positive, Neutral, or Negative sentiment. Tuned for low-resource deploys and neutral factuals!")
+    st.write("**Tech:** Built with Streamlit for the UI and Hugging Face's BERTweet-base model (trained on SemEval tweets for balanced 3-class).")
     st.write("**GitHub:** https://github.com/Aayudesh-k/sentiment-analyzer-app")
