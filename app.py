@@ -11,6 +11,17 @@ def load_model():
         tokenizer="cardiffnlp/twitter-roberta-base-sentiment"
     )
 
+# Map raw model labels to clean ones
+def map_label(raw_label):
+    if raw_label == 'LABEL_2':
+        return 'positive'
+    elif raw_label == 'LABEL_1':
+        return 'neutral'
+    elif raw_label == 'LABEL_0':
+        return 'negative'
+    else:
+        return 'unknown'  # Fallback
+
 # Random messages for variety
 positive_messages = [
     "Positive vibes! 🎉",
@@ -40,7 +51,7 @@ user_input = st.text_area("Enter text:", height=150, placeholder="E.g., 'This we
 if st.button("Analyze Sentiment") and user_input:
     model = load_model()
     result = model(user_input)[0]  # Get the top prediction
-    sentiment_lower = result['label']  # Lowercase: 'positive', 'neutral', or 'negative'
+    sentiment_lower = map_label(result['label'])  # Map raw to clean lowercase
 
     # Capitalize for display
     sentiment_display = sentiment_lower.capitalize()
@@ -49,14 +60,14 @@ if st.button("Analyze Sentiment") and user_input:
     st.subheader("Results:")
     st.write(f"**Sentiment:** {sentiment_display}")
     
-    # Pick & display random message with color-code (check lowercase)
+    # Pick & display random message with color-code
     if sentiment_lower == 'positive':
         msg = random.choice(positive_messages)
         st.success(msg)
     elif sentiment_lower == 'neutral':
         msg = random.choice(neutral_messages)
         st.warning(msg)
-    else:  # 'negative'
+    else:  # 'negative' or 'unknown'
         msg = random.choice(negative_messages)
         st.error(msg)
 
