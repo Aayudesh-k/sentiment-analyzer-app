@@ -64,4 +64,4 @@ with st.sidebar:
     st.header("About")
     st.write("**What it does:** Analyzes short text (like reviews or tweets) and classifies it as Positive, Neutral, or Negative sentiment. Tuned for better neutral detection on factual sentences!")
     st.write("**Tech:** Built with Streamlit for the UI and Hugging Face's RoBERTa-large model (fine-tuned on English reviews).")
-    st.write("**GitHub:** [link to repo]")  # Update later
+    st.write("**GitHub:** [https://github.com/Aayudesh-k/sentiment-analyzer-app]")  # Update later
