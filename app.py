@@ -2,12 +2,13 @@ import streamlit as st
 from transformers import pipeline
 import random  # For random message selection
 
-# Load the pre-trained 3-class sentiment model (downloads ~1.4GB first run—runs once)
-@st.cache_resource  # Caches the model to avoid reloading
+# Load lighter 3-class sentiment model (~500MB, low RAM)
+@st.cache_resource  # Caches to load once per session
 def load_model():
     return pipeline(
         "sentiment-analysis", 
-        model="j-hartmann/sentiment-roberta-large-english-3-classes"
+        model="cardiffnlp/twitter-roberta-base-sentiment",
+        tokenizer="cardiffnlp/twitter-roberta-base-sentiment"
     )
 
 # Random messages for variety
@@ -62,6 +63,6 @@ if st.button("Analyze Sentiment") and user_input:
 # Sidebar for info
 with st.sidebar:
     st.header("About")
-    st.write("**What it does:** Analyzes short text (like reviews or tweets) and classifies it as Positive, Neutral, or Negative sentiment. Tuned for better neutral detection on factual sentences!")
-    st.write("**Tech:** Built with Streamlit for the UI and Hugging Face's RoBERTa-large model (fine-tuned on English reviews).")
-    st.write("**GitHub:** [https://github.com/Aayudesh-k/sentiment-analyzer-app]")  # Update later
+    st.write("**What it does:** Analyzes short text (like reviews or tweets) and classifies it as Positive, Neutral, or Negative sentiment. Tuned for low-resource deploys!")
+    st.write("**Tech:** Built with Streamlit for the UI and Hugging Face's RoBERTa-base model (trained on 124M+ tweets).")
+    st.write("**GitHub:** https://github.com/Aayudesh-k/sentiment-analyzer-app")
